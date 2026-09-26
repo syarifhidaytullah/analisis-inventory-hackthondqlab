@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Carousel — Inventory Analytics Portfolio | Syarif Hidayatullah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #0B1120;
+      color: #F8FAFC;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+    }
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #FFFFFF;
+    }
+    .brand-sub {
+      font-size: 13px;
+      color: #94A3B8;
+      font-weight: 500;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: #2563EB;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #1D4ED8;
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: #E2E8F0;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    /* Carousel Container */
+    .carousel-wrapper {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .carousel-slide-view {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      background: #FFFFFF;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.1);
+      position: relative;
+      touch-action: pan-y pinch-zoom;
+    }
+
+    .carousel-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Floating navigation buttons */
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 10;
+    }
+    .nav-btn:hover {
+      background: #2563EB;
+      border-color: #2563EB;
+      transform: translateY(-50%) scale(1.08);
+    }
+    .nav-prev { left: -22px; }
+    .nav-next { right: -22px; }
+
+    /* Indicator & Controls */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 18px;
+      padding: 0 4px;
+    }
+    .indicator {
+      font-size: 15px;
+      font-weight: 700;
+      color: #94A3B8;
+      background: rgba(255,255,255,0.06);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .indicator strong {
+      color: #FFFFFF;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dot.active {
+      background: #3B82F6;
+      width: 24px;
+      border-radius: 9999px;
+    }
+
+    /* Thumbnails */
+    .thumbnails {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 900px;
+      overflow-x: auto;
+      padding: 24px 0 12px 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.2) transparent;
+    }
+    .thumb {
+      flex: 0 0 72px;
+      aspect-ratio: 4 / 5;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      opacity: 0.5;
+      transition: all 0.2s;
+    }
+    .thumb:hover {
+      opacity: 0.85;
+      transform: translateY(-2px);
+    }
+    .thumb.active {
+      border-color: #3B82F6;
+      opacity: 1;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      background: #16A34A;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 100;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-title">📊 Portofolio Hackathon Excel 2026</div>
+      <div class="brand-sub">Syarif Hidayatullah • Juara 1 Nasional (DQLab × UjiKompetensi)</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="copyLinkedInCaption()">
+        📋 Salin Teks LinkedIn
+      </button>
+      <a href="portfolio-carousel.pdf" download="Portofolio-Excel-Syarif-Hidayatullah.pdf" class="btn btn-primary">
+        ⬇️ Unduh Dokumen PDF
+      </a>
+    </div>
+  </header>
+
+  <div class="carousel-wrapper">
+    <button class="nav-btn nav-prev" onclick="prevSlide()" aria-label="Slide sebelumnya">❮</button>
+    <button class="nav-btn nav-next" onclick="nextSlide()" aria-label="Slide berikutnya">❯</button>
+
+    <div class="carousel-slide-view" id="slideContainer">
+      <img id="currentImg" class="carousel-img" src="slides/slide-1.png" alt="Slide 1">
+    </div>
+
+    <div class="controls">
+      <div class="indicator" id="indicator">Slide <strong>1</strong> dari 9</div>
+      <div class="dots" id="dotsContainer"></div>
+      <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px;" onclick="toggleFullscreen()">
+        ⛶ Layar Penuh
+      </button>
+    </div>
+  </div>
+
+  <!-- Thumbnails Row -->
+  <div class="thumbnails" id="thumbnailsContainer"></div>
+
+  <div id="toast" class="toast">Teks postingan LinkedIn berhasil disalin ke clipboard! 🎉</div>
+
+  <script>
+    const totalSlides = 9;
+    let currentIndex = 1;
+
+    const currentImg = document.getElementById('currentImg');
+    const indicator = document.getElementById('indicator');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const thumbnailsContainer = document.getElementById('thumbnailsContainer');
+    const toast = document.getElementById('toast');
+
+    // Generate dots and thumbnails
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.className = `dot ${i === 1 ? 'active' : ''}`;
+      dot.onclick = () => goToSlide(i);
+      dotsContainer.appendChild(dot);
+
+      const thumb = document.createElement('div');
+      thumb.className = `thumb ${i === 1 ? 'active' : ''}`;
+      thumb.innerHTML = `<img src="slides/slide-${i}.png" alt="Slide ${i}">`;
+      thumb.onclick = () => goToSlide(i);
+      thumbnailsContainer.appendChild(thumb);
+    }
+
+    function updateView() {
+      currentImg.src = `slides/slide-${currentIndex}.png`;
+      currentImg.alt = `Slide ${currentIndex}`;
+      indicator.innerHTML = `Slide <strong>${currentIndex}</strong> dari ${totalSlides}`;
+
+      document.querySelectorAll('.dot').forEach((d, idx) => {
+        d.classList.toggle('active', idx + 1 === currentIndex);
+      });
+
+      document.querySelectorAll('.thumb').forEach((t, idx) => {
+        t.classList.toggle('active', idx + 1 === currentIndex);
+        if (idx + 1 === currentIndex) {
+          t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      });
+    }
+
+    function goToSlide(n) {
+      currentIndex = n;
+      updateView();
+    }
+
+    function nextSlide() {
+      currentIndex = currentIndex < totalSlides ? currentIndex + 1 : 1;
+      updateView();
+    }
+
+    function prevSlide() {
+      currentIndex = currentIndex > 1 ? currentIndex - 1 : totalSlides;
+      updateView();
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    // Touch swipe support
+    let startX = 0;
+    const slideBox = document.getElementById('slideContainer');
+    slideBox.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    slideBox.addEventListener('touchend', (e) => {
+      const diffX = e.changedTouches[0].clientX - startX;
+      if (Math.abs(diffX) > 40) {
+        if (diffX < 0) nextSlide();
+        else prevSlide();
+      }
+    });
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        slideBox.requestFullscreen().catch(err => alert(err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function copyLinkedInCaption() {
+      fetch('LINKEDIN_POST.md')
+        .then(r => r.text())
+        .then(text => {
+          // Remove markdown header if any
+          const clean = text.replace(/^# Draft Postingan LinkedIn.*?\n---\n+/s, '');
+          navigator.clipboard.writeText(clean).then(() => {
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+          });
+        })
+        .catch(err => {
+          alert('Gagal membaca file postingan.');
+        });
+    }
+  </script>
+</body>
+</html>
